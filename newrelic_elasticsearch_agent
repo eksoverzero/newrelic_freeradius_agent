@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler/setup'
+require 'newrelic_plugin'
+
+module ElasticsearchStatsAgent
+
+  class Agent < NewRelic::Plugin::Agent::Base
+
+    agent_guid 'com.secondimpression.newrelic-freeradius-agent'
+    agent_version '0.0.1'
+    agent_config_options :name, :url, :index
+    agent_human_labels('FreeRADIUS') { name }
+
+    def setup_metrics
+
+    end
+
+  end
+
+  NewRelic::Plugin::Config.config_file = File.dirname(__FILE__) + '/config/newrelic_plugin.yml'
+  NewRelic::Plugin::Setup.install_agent :freeradius_stats_agent, self
+
+  NewRelic::Plugin::Run.setup_and_run
+end
+
