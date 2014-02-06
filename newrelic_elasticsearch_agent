@@ -4,24 +4,73 @@ require 'rubygems'
 require 'bundler/setup'
 require 'newrelic_plugin'
 
-module ElasticsearchStatsAgent
+module FreeradiusAgent
 
   class Agent < NewRelic::Plugin::Agent::Base
 
     agent_guid 'com.secondimpression.newrelic-freeradius-agent'
     agent_version '0.0.1'
-    agent_config_options :name, :url, :index
+    agent_config_options :name, :host, :port, :secret
     agent_human_labels('FreeRADIUS') { name }
 
     def setup_metrics
+
+      # FreeRADIUS-Total-Access-Requests = 0
+      # FreeRADIUS-Total-Access-Accepts = 5
+      # FreeRADIUS-Total-Access-Rejects = 0
+      # FreeRADIUS-Total-Access-Challenges = 0
+      # FreeRADIUS-Total-Auth-Responses = 5
+      # FreeRADIUS-Total-Auth-Duplicate-Requests = 0
+      # FreeRADIUS-Total-Auth-Malformed-Requests = 0
+      # FreeRADIUS-Total-Auth-Invalid-Requests = 0
+      # FreeRADIUS-Total-Auth-Dropped-Requests = 0
+      # FreeRADIUS-Total-Auth-Unknown-Types = 0
+      # FreeRADIUS-Total-Accounting-Requests = 0
+      # FreeRADIUS-Total-Accounting-Responses = 0
+      # FreeRADIUS-Total-Acct-Duplicate-Requests = 0
+      # FreeRADIUS-Total-Acct-Malformed-Requests = 0
+      # FreeRADIUS-Total-Acct-Invalid-Requests = 0
+      # FreeRADIUS-Total-Acct-Dropped-Requests = 0
+      # FreeRADIUS-Total-Acct-Unknown-Types = 0
+      # FreeRADIUS-Total-Proxy-Access-Requests = 0
+      # FreeRADIUS-Total-Proxy-Access-Accepts = 0
+      # FreeRADIUS-Total-Proxy-Access-Rejects = 0
+      # FreeRADIUS-Total-Proxy-Access-Challenges = 0
+      # FreeRADIUS-Total-Proxy-Auth-Responses = 0
+      # FreeRADIUS-Total-Proxy-Auth-Duplicate-Requests = 0
+      # FreeRADIUS-Total-Proxy-Auth-Malformed-Requests = 0
+      # FreeRADIUS-Total-Proxy-Auth-Invalid-Requests = 0
+      # FreeRADIUS-Total-Proxy-Auth-Dropped-Requests = 0
+      # FreeRADIUS-Total-Proxy-Auth-Unknown-Types = 0
+      # FreeRADIUS-Total-Proxy-Accounting-Requests = 0
+      # FreeRADIUS-Total-Proxy-Accounting-Responses = 0
+      # FreeRADIUS-Total-Proxy-Acct-Duplicate-Requests = 0
+      # FreeRADIUS-Total-Proxy-Acct-Malformed-Requests = 0
+      # FreeRADIUS-Total-Proxy-Acct-Invalid-Requests = 0
+      # FreeRADIUS-Total-Proxy-Acct-Dropped-Requests = 0
+      # FreeRADIUS-Total-Proxy-Acct-Unknown-Types = 0
+      # FreeRADIUS-Stats-Start-Time = "Feb  6 2014 01:06:36 EST"
+      # FreeRADIUS-Stats-HUP-Time = "Feb  6 2014 01:06:36 EST"
+      # FreeRADIUS-Queue-Len-Internal = 0
+      # FreeRADIUS-Queue-Len-Proxy = 0
+      # FreeRADIUS-Queue-Len-Auth = 0
+      # FreeRADIUS-Queue-Len-Acct = 0
+      # FreeRADIUS-Queue-Len-Detail = 0
+
+      @total_access_requests = NewRelic::Processor::EpochCounter.new
+      @total_access_accepts    = NewRelic::Processor::EpochCounter.new
+    end
+
+    def poll_cycle
 
     end
 
   end
 
   NewRelic::Plugin::Config.config_file = File.dirname(__FILE__) + '/config/newrelic_plugin.yml'
-  NewRelic::Plugin::Setup.install_agent :freeradius_stats_agent, self
+  NewRelic::Plugin::Setup.install_agent :freeradius_agent, self
 
   NewRelic::Plugin::Run.setup_and_run
 end
+
 

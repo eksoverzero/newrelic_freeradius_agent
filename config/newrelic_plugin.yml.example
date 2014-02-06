@@ -13,9 +13,12 @@ newrelic:
 # Agent Configuration, describe your nginx instances here
 #
 agents:
-  freeradius_stats_agent:
+  freeradius_agent:
     -
+     name: "Local"
       # Hostname
       host: "localhost"
+      port: "18121"
       secret: "adminsecret"
+
 
