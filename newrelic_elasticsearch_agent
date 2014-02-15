@@ -57,12 +57,37 @@ module FreeradiusAgent
       # FreeRADIUS-Queue-Len-Acct = 0
       # FreeRADIUS-Queue-Len-Detail = 0
 
-      @total_access_requests = NewRelic::Processor::EpochCounter.new
-      @total_access_accepts    = NewRelic::Processor::EpochCounter.new
+      @access_requests = NewRelic::Processor::EpochCounter.new
+      @access_accepts    = NewRelic::Processor::EpochCounter.new
     end
 
     def poll_cycle
+      unless get_freeradius_status
+        return nil
+      end
+      
+    end
 
+    def get_freeradius_status
+      radclient = `which radclient`.strip
+      if radclient == ""
+        print "ERROR: Cannot find Radclient.\n"
+        return nil
+      end
+
+      command = "echo \"Message-Authenticator=0x00, FreeRADIUS-Statistics-Type=0x1f\" | #{radclient} #{host}:#{port} status #{secret} 2>&1\n"
+      output = `#{command}`
+
+      if !$?.success? or output =~ /no response/i
+        print "ERROR: Cannot connect to FreeRADIUS.\n"
+      end
+
+      metrics = Hash.new
+      output.split(/\n/).select{ |x| x =~ /FreeRADIUS-Total/i }.map{ |x| x.strip }.each do |out|
+        metrics[out.split(" = ")[0].gsub("FreeRADIUS-Total-", "")] = out.split(" = ")[1].to_i
+      end
+
+      return metrics
     end
 
   end
