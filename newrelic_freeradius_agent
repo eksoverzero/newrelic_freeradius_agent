@@ -1,0 +1,97 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler/setup'
+require 'newrelic_plugin'
+
+module FreeradiusAgent
+
+  class Agent < NewRelic::Plugin::Agent::Base
+
+    agent_guid 'com.secondimpression.newrelic-freeradius-agent'
+    agent_version '0.0.1'
+    agent_config_options :name, :host, :port, :secret
+    agent_human_labels('FreeRADIUS') { name }
+
+    def setup_metrics
+      @access_requests   = NewRelic::Processor::EpochCounter.new
+      @access_accepts    = NewRelic::Processor::EpochCounter.new
+      @access_rejects    = NewRelic::Processor::EpochCounter.new
+      @access_challenges = NewRelic::Processor::EpochCounter.new
+
+      @auth_responses          = NewRelic::Processor::EpochCounter.new
+      @auth_duplicate_requests = NewRelic::Processor::EpochCounter.new
+      @auth_malformed_requests = NewRelic::Processor::EpochCounter.new
+      @auth_invalid_requests   = NewRelic::Processor::EpochCounter.new
+      @auth_dropped_requests   = NewRelic::Processor::EpochCounter.new
+      @auth_unknown_types      = NewRelic::Processor::EpochCounter.new
+
+      @accounting_requests           = NewRelic::Processor::EpochCounter.new
+      @accounting_responses          = NewRelic::Processor::EpochCounter.new
+      @accounting_duplicate_requests = NewRelic::Processor::EpochCounter.new
+      @accounting_malformed_requests = NewRelic::Processor::EpochCounter.new
+      @accounting_invalid_requests   = NewRelic::Processor::EpochCounter.new
+      @accounting_dropped_requests   = NewRelic::Processor::EpochCounter.new
+      @accounting_unknown_types      = NewRelic::Processor::EpochCounter.new
+
+      @proxy_access_requests   = NewRelic::Processor::EpochCounter.new
+      @proxy_access_accepts    = NewRelic::Processor::EpochCounter.new
+      @proxy_access_rejects    = NewRelic::Processor::EpochCounter.new
+      @proxy_access_challenges = NewRelic::Processor::EpochCounter.new
+
+      @proxy_auth_responses          = NewRelic::Processor::EpochCounter.new
+      @proxy_auth_duplicate_requests = NewRelic::Processor::EpochCounter.new
+      @proxy_auth_malformed_requests = NewRelic::Processor::EpochCounter.new
+      @proxy_auth_invalid_requests   = NewRelic::Processor::EpochCounter.new
+      @proxy_auth_dropped_requests   = NewRelic::Processor::EpochCounter.new
+      @proxy_auth_unknown_types      = NewRelic::Processor::EpochCounter.new
+
+      @proxy_accounting_requests           = NewRelic::Processor::EpochCounter.new
+      @proxy_accounting_responses          = NewRelic::Processor::EpochCounter.new
+      @proxy_accounting_duplicate_requests = NewRelic::Processor::EpochCounter.new
+      @proxy_accounting_malformed_requests = NewRelic::Processor::EpochCounter.new
+      @proxy_accounting_invalid_requests   = NewRelic::Processor::EpochCounter.new
+      @proxy_accounting_dropped_requests   = NewRelic::Processor::EpochCounter.new
+      @proxy_accounting_unknown_types      = NewRelic::Processor::EpochCounter.new
+    end
+
+    def poll_cycle
+      unless get_freeradius_status
+        return nil
+      end
+
+      print get_freeradius_status
+      
+    end
+
+    def get_freeradius_status
+      radclient = `which radclient`.strip
+      if radclient == ""
+        print "ERROR: Cannot find Radclient.\n"
+        return nil
+      end
+
+      command = "echo \"Message-Authenticator=0x00, FreeRADIUS-Statistics-Type=0x1f\" | #{radclient} #{host}:#{port} status #{secret} 2>&1\n"
+      output = `#{command}`
+
+      if !$?.success? or output =~ /no response/i
+        print "ERROR: Cannot connect to FreeRADIUS.\n"
+      end
+
+      metrics = Hash.new
+      output.split(/\n/).select{ |x| x =~ /FreeRADIUS-Total/i }.map{ |x| x.strip }.each do |out|
+        metrics[out.split(" = ")[0].gsub("FreeRADIUS-Total-", "")] = out.split(" = ")[1].to_i
+      end
+
+      return metrics
+    end
+
+  end
+
+  NewRelic::Plugin::Config.config_file = File.dirname(__FILE__) + '/config/newrelic_plugin.yml'
+  NewRelic::Plugin::Setup.install_agent :freeradius_agent, self
+
+  NewRelic::Plugin::Run.setup_and_run
+end
+
+
