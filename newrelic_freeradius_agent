@@ -60,8 +60,47 @@ module FreeradiusAgent
         return nil
       end
 
-      print get_freeradius_status
-      
+      stats = get_freeradius_status
+
+      report_metric "Access/Requests",    "Requests/Second",    @access_requests.process( stats['Access-Requests'] )     if stats['Access-Requests']
+      report_metric "Access/Accepts",     "Accepts/Second",     @access_accepts.process( stats['Access-Accepts'] )       if stats['Access-Accepts']
+      report_metric "Access/Rejects",     "Rejects/Second",     @access_rejects.process( stats['Access-Rejects'] )       if stats['Access-Rejects']
+      report_metric "Access/Challenges",  "Challenges/Second",  @access_challenges.process( stats['Access-Challenges'] ) if stats['Access-Challenges']
+
+      report_metric "Auth/Responses", "Responses/Second", @auth_responses.process( stats['Auth-Responses'] )                   if stats['Auth-Responses']
+      report_metric "Auth/Duplicate", "Requests/Second",  @auth_duplicate_requests.process( stats['Auth-Duplicate-Requests'] ) if stats['Auth-Duplicate-Requests']
+      report_metric "Auth/Malformed", "Requests/Second",  @auth_malformed_requests.process( stats['Auth-Malformed-Requests'] ) if stats['Auth-Malformed-Requests']
+      report_metric "Auth/Invalid",   "Requests/Second",  @auth_invalid_requests.process( stats['Auth-Invalid-Requests'] )     if stats['Auth-Invalid-Requests']
+      report_metric "Auth/Dropped",   "Requests/Second",  @auth_dropped_requests.process( stats['Auth-Dropped-Requests'] )     if stats['Auth-Dropped-Requests']
+      report_metric "Auth/Unknown",   "Requests/Second",  @auth_unknown_types.process( stats['Auth-Unknown-Types'] )           if stats['Auth-Unknown-Types']
+
+      report_metric "Accounting/Requests",  "Requests/Second",  @accounting_requests.process( stats['Accounting-Requests'] )               if stats['Accounting-Requests']
+      report_metric "Accounting/Responses", "Responses/Second", @accounting_responses.process( stats['Accounting-Responses'] )             if stats['Accounting-Responses']
+      report_metric "Accounting/Duplicate", "Requests/Second",  @accounting_duplicate_requests.process( stats['Acct-Duplicate-Requests'] ) if stats['Acct-Duplicate-Requests']
+      report_metric "Accounting/Malformed", "Requests/Second",  @accounting_malformed_requests.process( stats['Acct-Malformed-Requests'] ) if stats['Acct-Malformed-Requests']
+      report_metric "Accounting/Invalid",   "Requests/Second",  @accounting_invalid_requests.process( stats['Acct-Invalid-Requests'] )     if stats['Acct-Invalid-Requests']
+      report_metric "Accounting/Dropped",   "Requests/Second",  @accounting_dropped_requests.process( stats['Acct-Dropped-Requests'] )     if stats['Acct-Dropped-Requests']
+      report_metric "Accounting/Unknown",   "Requests/Second",  @accounting_unknown_types.process( stats['Acct-Unknown-Types'] )           if stats['Acct-Unknown-Types']
+
+      report_metric "Proxy/Access/Requests",   "Requests/Second",   @proxy_access_requests.process( stats['Proxy-Access-Requests'] )     if stats['Proxy-Access-Requests']
+      report_metric "Proxy/Access/Accepts",    "Accepts/Second",    @proxy_access_accepts.process( stats['Proxy-Access-Accepts'] )       if stats['Proxy-Access-Accepts']
+      report_metric "Proxy/Access/Rejects",    "Rejects/Second",    @proxy_access_rejects.process( stats['Proxy-Access-Rejects'] )       if stats['Proxy-Access-Rejects']
+      report_metric "Proxy/Access/Challenges", "Challenges/Second", @proxy_access_challenges.process( stats['Proxy-Access-Challenges'] ) if stats['Proxy-Access-Challenges']
+
+      report_metric "Proxy/Auth/Responses", "Responses/Second", @proxy_auth_responses.process( stats['Proxy-Auth-Responses'] )                   if stats['Proxy-Auth-Responses']
+      report_metric "Proxy/Auth/Duplicate", "Requests/Second",  @proxy_auth_duplicate_requests.process( stats['Proxy-Auth-Duplicate-Requests'] ) if stats['Proxy-Auth-Duplicate-Requests']
+      report_metric "Proxy/Auth/Malformed", "Requests/Second",  @proxy_auth_malformed_requests.process( stats['Proxy-Auth-Malformed-Requests'] ) if stats['Proxy-Auth-Malformed-Requests']
+      report_metric "Proxy/Auth/Invalid",   "Requests/Second",  @proxy_auth_invalid_requests.process( stats['Proxy-Auth-Invalid-Requests'] )     if stats['Proxy-Auth-Invalid-Requests']
+      report_metric "Proxy/Auth/Dropped",   "Requests/Second",  @proxy_auth_dropped_requests.process( stats['Proxy-Auth-Dropped-Requests'] )     if stats['Proxy-Auth-Dropped-Requests']
+      report_metric "Proxy/Auth/Unknown",   "Requests/Second",  @proxy_auth_unknown_types.process( stats['Proxy-Auth-Unknown-Types'] )           if stats['Proxy-Auth-Unknown-Types']
+
+      report_metric "Proxy/Accounting/Requests",  "Requests/Second",  @proxy_accounting_requests.process( stats['Proxy-Accounting-Requests'] )               if stats['Proxy-Accounting-Requests']
+      report_metric "Proxy/Accounting/Responses", "Responses/Second", @proxy_accounting_responses.process( stats['Proxy-Accounting-Responses'] )             if stats['Proxy-Accounting-Responses']
+      report_metric "Proxy/Accounting/Duplicate", "Requests/Second",  @proxy_accounting_duplicate_requests.process( stats['Proxy-Acct-Duplicate-Requests'] ) if stats['Proxy-Acct-Duplicate-Requests']
+      report_metric "Proxy/Accounting/Malformed", "Requests/Second",  @proxy_accounting_malformed_requests.process( stats['Proxy-Acct-Malformed-Requests'] ) if stats['Proxy-Acct-Malformed-Requests']
+      report_metric "Proxy/Accounting/Invalid",   "Requests/Second",  @proxy_accounting_invalid_requests.process( stats['Proxy-Acct-Invalid-Requests'] )     if stats['Proxy-Acct-Invalid-Requests']
+      report_metric "Proxy/Accounting/Dropped",   "Requests/Second",  @proxy_accounting_dropped_requests.process( stats['Proxy-Acct-Dropped-Requests'] )     if stats['Proxy-Acct-Dropped-Requests']
+      report_metric "Proxy/Accounting/Unknown",   "Requests/Second",  @proxy_accounting_unknown_types.process( stats['Proxy-Acct-Unknown-Types'] )           if stats['Proxy-Acct-Unknown-Types']
     end
 
     def get_freeradius_status
@@ -93,5 +132,4 @@ module FreeradiusAgent
 
   NewRelic::Plugin::Run.setup_and_run
 end
-
 
