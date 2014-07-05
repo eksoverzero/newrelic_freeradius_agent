@@ -10,12 +10,12 @@ newrelic:
   verbose: 1
 
 #
-# Agent Configuration, describe your nginx instances here
+# Agent Configuration, describe your freeRADIUS server here
 #
 agents:
   freeradius_agent:
     -
-     name: "Local"
+      name: "Local"
       # Hostname
       host: "localhost"
       port: "18121"
