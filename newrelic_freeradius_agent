@@ -110,7 +110,7 @@ module FreeradiusAgent
         return nil
       end
 
-      command = "echo \"Message-Authenticator=0x00, FreeRADIUS-Statistics-Type=0x1f\" | #{radclient} #{host}:#{port} status #{secret} 2>&1\n"
+      command = "echo \"Message-Authenticator=0x00, FreeRADIUS-Statistics-Type=0x1f, Response-Packet-Type = Access-Accept\" | #{radclient} -x #{host}:#{port} status #{secret} 2>&1\n"
       output = `#{command}`
 
       if !$?.success? or output =~ /no response/i
